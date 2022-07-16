@@ -1,21 +1,37 @@
 const combineAsyncError = (awaits, config = { pipes: {} }) => {
-    const checkType = data => Object.prototype.toString.call(data).slice(8, -1) === 'Object'
+    const rightType = { 'Array': 'Array: []', 'Object': 'Object: {}', 'Function': 'Function: () => void' }
+    const redAlert = (c, t) => { throw TypeError(`${c} is not type ${rightType[t]}`) }
+    const combineAsyncErrorArgs = [
+        [awaits, 'Array', () => { redAlert(awaits, 'Array') }],
+        [config, 'Object', () => { redAlert(config, 'Object') }],
+    ]
+    const checkType = (data, type) => Object.prototype.toString.call(data).slice(8, -1) === type
+    combineAsyncErrorArgs.forEach(([t, r, f]) => !checkType(t, r) ? f() : null)
     const init = v => ({ func: v, args: [], callback: Function.prototype })
-    if (typeof awaits === 'function') awaits = [awaits]
-    const tasks = awaits.map(v => checkType(v) ? { ...init(v), ...v } : init(v))
-    const doGlide = { node: null, out: null, times: 0, data: { result: [], error: null } }
-    const push = v => {
-        const { node, data, out } = doGlide
-        data.result.push(v)
-        if (node.next().done) out(data)
+    const signleArgs = {
+        'func': v => !checkType(v, 'Function') ? redAlert(v, 'Function') : null,
+        'args': v => !checkType(v, 'Array') ? redAlert(v, 'Array') : null,
+        'callback': v => !checkType(v, 'Function') ? redAlert(v, 'Function') : null,
     }
+    const proxy = new Proxy(signleArgs, { get() { return Function.prototype } })
+    signleArgs.__proto__ = proxy
+    const tasks = awaits.map(v => {
+        if (checkType(v, 'Object')) {
+            const o = Object.keys(v)
+            o.forEach(key => signleArgs[key](v[key]))
+            return { ...init(v), ...v }
+        }
+        signleArgs.func(v)
+        return init(v)
+    })
+    const doGlide = { node: null, out: null, times: 0, data: { result: [], error: null } }
+    const push = v => doGlide.data.result.push(v) && doGlide.node.next()
     const operations = {
         pipes: result => {
             const { single, whole } = config.pipes
             if (whole) return { isNeedPreArg: true, preReturn: result }
             if (!single) return { isNeedPreArg: false }
-            const pLen = result.length - 1
-            const preReturn = result[pLen > 0 ? pLen : 0]
+            const preReturn = result[result.length - 1]
             return { isNeedPreArg: true, preReturn }
         },
         forever: error => {
@@ -42,11 +58,12 @@ const combineAsyncError = (awaits, config = { pipes: {} }) => {
         }
     }
     const handler = out => {
+        doGlide.out = out
         doGlide.node = (function* () {
-            doGlide.out = out
             const len = tasks.length
             while (doGlide.times < len)
                 yield noErrorAwait(tasks[doGlide.times++])
+            doGlide.out(doGlide.data)
         })()
         doGlide.node.next()
     }
