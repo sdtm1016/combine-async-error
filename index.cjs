@@ -154,4 +154,4 @@ const combineAsyncError = (awaits, asyncConfig) => {
     letsGo.then(v => config.acc(v))
 }
 
-module.exports = { combineAsyncError }
+module.exports = combineAsyncError

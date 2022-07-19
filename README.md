@@ -8,38 +8,42 @@
 
 先请求书本作者---再请求书本价格---再请求书本出版社
 
-- 当成功时则需要返回所有结果
-- 当某次请求失败时，需要抛出具体的错误原因
+-   当成功时则需要返回所有结果
+-   当某次请求失败时，需要抛出具体的错误原因
 
 # 模拟异步
 
 在这里我们称`requestAuthor`、`requestPrice`、`requestPress`为请求函数。且`interface`用于模拟某次请求的成功与否
+
 ```js
 // 标识每次请求的成功与否
 const interface = [true, false, false]
 
-const book = '三国演义'
+const book = "三国演义"
 // 请求书本的作者信息接口
-const requestAuthor = () => new Promise((res, rej) => {
-    setTimeout(() => {
-        if (interface[0]) return res(`《${book}》的作者是罗贯中`)
-        rej(`请求《${book}》的【作者】时出错，你现在可以做出具体的操作了`)
-    }, 1000)
-})
+const requestAuthor = () =>
+    new Promise((res, rej) => {
+        setTimeout(() => {
+            if (interface[0]) return res(`《${book}》的作者是罗贯中`)
+            rej(`请求《${book}》的【作者】时出错，你现在可以做出具体的操作了`)
+        }, 1000)
+    })
 // 请求书本的价格信息接口
-const requestPrice = () => new Promise((res, rej) => {
-    setTimeout(() => {
-        if (interface[1]) return res(`《${book}》的价格是99元`)
-        rej(`请求《${book}》的【价格】时出错，你现在可以做出具体的操作了`)
-    }, 1000)
-})
+const requestPrice = () =>
+    new Promise((res, rej) => {
+        setTimeout(() => {
+            if (interface[1]) return res(`《${book}》的价格是99元`)
+            rej(`请求《${book}》的【价格】时出错，你现在可以做出具体的操作了`)
+        }, 1000)
+    })
 // 请求书本的出版社信息接口
-const requestPress = () => new Promise((res, rej) => {
-    setTimeout(() => {
-        if (interface[2]) return res(`《${book}》的出版社是人民邮电出版社`)
-        rej(`请求《${book}》的【出版社】时出错，你现在可以做出具体的操作了`)
-    }, 1000)
-})
+const requestPress = () =>
+    new Promise((res, rej) => {
+        setTimeout(() => {
+            if (interface[2]) return res(`《${book}》的出版社是人民邮电出版社`)
+            rej(`请求《${book}》的【出版社】时出错，你现在可以做出具体的操作了`)
+        }, 1000)
+    })
 ```
 
 # Promise
@@ -47,25 +51,26 @@ const requestPress = () => new Promise((res, rej) => {
 ```js
 requestAuthor()
     .then(data => {
-        console.log('第一次请求', data)
+        console.log("第一次请求", data)
         return requestPrice()
     })
     .then(data => {
-        console.log('第二次请求', data)
+        console.log("第二次请求", data)
         return requestPress()
     })
     .then(data => {
-        console.log('第三次请求', data)
+        console.log("第三次请求", data)
     })
-    .catch(e => console.log('请求出错', e))
+    .catch(e => console.log("请求出错", e))
 ```
 
-> async的实现方式与上述代码大致相同，所以不再给出
+> async 的实现方式与上述代码大致相同，所以不再给出
 
 使用链式`then`的方式，在我看来，有以下问题
-- 如果想在**第三次请求**中得到前面两次的请求结果，可能需要对每个`then`的返回值以及请求函数进行包装，或使用额外的环境进行存储
-- 如果想让某个请求函数在出错时，**继续往下执行**，这可能就需要对`Promise`作一番处理
-- 现在只是三次嵌套请求，如果**继续增加**则会导致`then`也继续增加
+
+-   如果想在**第三次请求**中得到前面两次的请求结果，可能需要对每个`then`的返回值以及请求函数进行包装，或使用额外的环境进行存储
+-   如果想让某个请求函数在出错时，**继续往下执行**，这可能就需要对`Promise`作一番处理
+-   现在只是三次嵌套请求，如果**继续增加**则会导致`then`也继续增加
 
 综上所述，现在给出`combine-async-error`的解决方案
 
@@ -80,48 +85,48 @@ npm install combine-async-error
 ## 入门
 
 ```js
-import combineAsyncError from 'combine-async-error'
+import combineAsyncError from "combine-async-error"
 
 const asyncQueue = [requestAuthor, requestPrice, requestPress]
 const end = data => console.log(data)
 
-combineAsyncError(asyncQueue)
-	.then(end)
+combineAsyncError(asyncQueue).then(end)
 ```
 
 ## 参数说明
 
 接收两个参数
-- `awaits`：异步任务队列
-- `config`：配置项
+
+-   `awaits`：异步任务队列
+-   `config`：配置项
 
 ### awaits
 
 `awaits`必须是一个数组，该数组中的每位成员必须是**函数或对象**，举例
 
 ```js
-const asyncQueue = [ requestAuthor ]
+const asyncQueue = [requestAuthor]
 const end = data => console.log(data)
 
-combineAsyncError(asyncQueue)
-	.then(end)
+combineAsyncError(asyncQueue).then(end)
 ```
 
 当`awaits`是对象时，格式如下
+
 ```js
 const asyncQueue = [
     requestAuthor,
     {
         func: requestPrice,
-        args: ['鲨鱼辣椒'],
+        args: ["鲨鱼辣椒"],
         callback: Function.prototype
     }
 ]
 const end = data => console.log(data)
 
-combineAsyncError(asyncQueue)
-    .then(end)
+combineAsyncError(asyncQueue).then(end)
 ```
+
 `func`为要执行的请求函数
 
 `[args]`表示当执行请求函数时要传递的参数；可选
@@ -138,7 +143,7 @@ combineAsyncError(asyncQueue)
 
 在设计`combine-async-error`时，关于传入的参数是否进行校验，其实是存在一些负面影响的，为此，`combine-async-error`主动添加了`isCheckTypes`配置项，如果该配置项的值为`false`，则不对入参进行检查，反之进行严格的类型检查。如果可以确保传入的类型始终是正确的，那么强烈建议你将该配置项更改为`false`；默认为`true`
 
-> 由于JavaScript中存在隐式类型转换，所以即使你指定了isCheckTypes为true，combine-async-error也不会对传入的第二个参数(config)进行检查
+> 由于 JavaScript 中存在隐式类型转换，所以即使你指定了 isCheckTypes 为 true，combine-async-error 也不会对传入的第二个参数(config)进行检查
 
 ```js
 isCheckTypes: true
@@ -195,7 +200,7 @@ all: false // 嵌套请求
 
 ```js
 all: {
-	order: true
+    order: true
 }
 ```
 
@@ -254,16 +259,18 @@ combine-async-error([
 
 需要注意的是，`combine-async-error`不会抛出任何错误(除非你传递的类型参数不正确)
 
-### combineAsyncError的返回值
+### combineAsyncError 的返回值
 
 该返回值取决于是否指定了`acc`配置项
 `combineAsyncError`的返回值有以下两种情况
-- `undefined`
-- `Promise`实例
+
+-   `undefined`
+-   `Promise`实例
 
 ### 请求结果的返回值
 
 #### 请求成功
+
 当所有请求函数都执行成功时，收到的结果如下
 
 ```js
@@ -316,7 +323,6 @@ const interface = [true, false, true]
 如果你对`combine-async-error`有任何建议，欢迎反馈
 
 期待你的最优解
-
 
     // 修复了配置项失效的问题
     // requestCallback
