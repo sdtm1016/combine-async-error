@@ -1,0 +1,14 @@
+{
+    "name": "test-combine-async-error",
+    "version": "0.0.1",
+    "description": "测试combine-async-error",
+    "main": "index.cjs",
+    "scripts": {
+        "test": "jest"
+    },
+    "author": "FuncJin",
+    "license": "ISC",
+    "devDependencies": {
+        "jest": "^28.1.3"
+    }
+}
