@@ -1,14 +1,22 @@
 {
-  "name": "combine-async-error",
-  "version": "0.2.0",
-  "description": "将.then、.catch、try catch组合在一起，并在复杂的嵌套请求中体现combine-async-error工具类的强大",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "异步、错误、嵌套请求"
-  ],
-  "author": "FuncJin",
-  "license": "ISC"
+    "name": "combine-async-error",
+    "version": "0.2.0",
+    "description": "将.then、.catch、try catch组合在一起，并在复杂的嵌套请求中体现combine-async-error工具类的强大",
+    "main": "index.mjs",
+    "scripts": {
+        "test": "jest"
+    },
+    "keywords": [
+        "异步、错误、嵌套请求"
+    ],
+    "exports": {
+        "import": "./index.mjs",
+        "require": "./index.cjs"
+    },
+    "author": "FuncJin",
+    "license": "ISC",
+    "devDependencies": {
+        "jest": "^28.1.3",
+        "prettier": "^2.7.1"
+    }
 }
