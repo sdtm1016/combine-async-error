@@ -4,7 +4,8 @@
     "description": "将.then、.catch、try catch组合在一起，并在复杂的嵌套请求中体现combine-async-error工具类的强大",
     "main": "index.mjs",
     "scripts": {
-        "test": "jest"
+        "test": "jest",
+        "formatter": "npx prettier --write ."
     },
     "keywords": [
         "异步、错误、嵌套请求"
