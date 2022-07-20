@@ -7,7 +7,15 @@
         "formatter": "npx prettier --write ."
     },
     "keywords": [
-        "异步、错误、嵌套请求"
+        "异步",
+        "错误",
+        "嵌套请求",
+        "await",
+        "async",
+        "async-error",
+        "nested-async-request",
+        "nested",
+        "tool"
     ],
     "exports": {
         "import": "./index.mjs",
