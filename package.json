@@ -14,7 +14,7 @@
         "require": "./index.cjs"
     },
     "author": "FuncJin",
-    "license": "ISC",
+    "license": "MIT",
     "devDependencies": {
         "prettier": "^2.7.1"
     }
